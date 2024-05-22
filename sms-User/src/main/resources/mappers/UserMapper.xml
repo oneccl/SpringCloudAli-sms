@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cc.smsuser.dao.UserMapper">
+
+    <!--一对一映射-->
+    <resultMap id="userMap" type="User">
+        <association property="role" javaType="Role"/>
+    </resultMap>
+
+    <!--根据用户名&密码查询用户-->
+    <select id="queryCheck" resultMap="userMap">
+        select * from sms_user where userCode=#{userCode} and userPassword=#{userPassword}
+    </select>
+
+    <!--查询用户-->
+    <select id="queryUsers" resultMap="userMap">
+        select
+            u.*,year(now())-year(u.birthday) age,r.roleCode,r.roleName
+        from
+            sms_user u,sms_role r
+        where
+            u.userRole=r.roleId
+        <if test="param1 != null and param1 != ''">
+            and userName like "%"#{param1}"%"
+        </if>
+        <if test="param2 != null and param2 != '' and param2 != 0">
+            and userRole = #{param2}
+        </if>
+    </select>
+
+    <!--删除用户-->
+    <delete id="delete">
+        delete from sms_user where userId=#{uId}
+    </delete>
+
+    <!--添加用户-->
+    <insert id="insert">
+        insert into sms_user
+        (userCode,userName,userPassword,gender,birthday,phone,address,userRole)
+        values
+        (#{userCode},#{userName},#{userPassword},#{gender},#{birthday},#{phone},#{address},#{userRole})
+    </insert>
+
+    <!--根据id查询用户-->
+    <select id="queryById" resultMap="userMap">
+        select u.*,r.roleName from sms_user u,sms_role r where u.userRole=r.roleId and userId=#{uId}
+    </select>
+
+    <!--修改用户-->
+    <update id="update">
+        update
+            sms_user
+        set
+            userName=#{userName},gender=#{gender},birthday=#{birthday},
+            phone=#{phone},address=#{address},userRole=#{userRole}
+        where
+            userId=#{userId}
+    </update>
+
+    <!--核对原密码-->
+    <select id="queryByIdAndPw" resultMap="userMap">
+        select * from sms_user where userId=#{param1} and userPassword=#{param2}
+    </select>
+
+    <!--修改密码-->
+    <update id="updatePw">
+        update sms_user set userPassword=#{param2} where userId=#{param1}
+    </update>
+
+</mapper>

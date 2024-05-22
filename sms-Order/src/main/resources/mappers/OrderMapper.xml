@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cc.smsorder.dao.OrderMapper">
+
+    <resultMap id="orderMap" type="Order">
+        <association property="provider" javaType="Provider"/>
+    </resultMap>
+
+    <!--查询-->
+    <select id="queryOrders" resultMap="orderMap">
+        select
+            o.*,p.proName
+        from
+            sms_order o,sms_provider p
+        where
+            o.providerId=p.proId
+        <if test="param1 != null and param1 != ''">
+            and goodsName like "%"#{param1}"%"
+        </if>
+        <if test="param2 != null and param2 != '' and param2 != 0">
+            and providerId=#{param2}
+        </if>
+        <if test="param3 != null and param3 != '' and param3 != 0">
+            and isPayment=#{param3}
+        </if>
+    </select>
+
+    <!--根据id查询-->
+    <select id="queryById" resultMap="orderMap">
+        select
+            o.*,p.proName
+        from
+            sms_order o,sms_provider p
+        where
+            o.providerId=p.proId and o.orderId=#{oId}
+    </select>
+
+    <!--删除-->
+    <delete id="delete">
+        delete from sms_order where orderId=#{oId}
+    </delete>
+
+    <!--修改-->
+    <update id="update">
+        update sms_order set
+        orderCode=#{orderCode},
+        goodsName=#{goodsName},
+        goodsUnit=#{goodsUnit},
+        goodsCount=#{goodsCount},
+        totalPrice=#{totalPrice},
+        providerId=#{providerId},
+        isPayment=#{isPayment}
+        where
+        orderId=#{orderId}
+    </update>
+
+    <!--添加-->
+    <insert id="insert">
+        insert into sms_order
+        (orderCode,goodsName,goodsUnit,goodsCount,totalPrice,providerId,isPayment,creationDate)
+        values
+        (#{orderCode},#{goodsName},#{goodsUnit},#{goodsCount},#{totalPrice},#{providerId},#{isPayment},#{creationDate})
+    </insert>
+
+</mapper>

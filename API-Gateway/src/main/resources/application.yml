@@ -1,0 +1,62 @@
+# 应用服务 WEB 访问端口
+server:
+  port: 8888
+# 应用名称
+spring:
+  application:
+    name: API-Gateway
+  cloud:
+    # 网关API-Gateway注册到Nacos服务注册中心(用来发现Nacos中其它服务)
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
+    # 配置Sentinel控制台(一个Spring Boot服务)通信端口和服务注册地址
+    sentinel:
+      transport:
+        # 与控制台服务通信的端口(任意配置)
+        port: 7004
+        # 控制台服务地址
+        dashboard: localhost:8080
+
+    gateway:
+      # 让API-Gateway可以发现Nacos中其它服务
+      discovery:
+        locator:
+          enabled: true
+
+      # 网关路由
+      # 设置路由：路由id、路由到微服务的uri、断言(匹配进行路由)
+      routes:
+        # 路由到User-Service微服务
+        - id: r-UserService
+          uri: lb://User-Service
+          order: 0
+          predicates:
+            - Path=/UserService/**
+          filters:
+            - StripPrefix=1
+        # 路由到Provider-Service微服务
+        - id: r-ProviderService
+          uri: lb://Provider-Service
+          order: 1
+          predicates:
+            - Path=/ProviderService/**
+          filters:
+            - StripPrefix=1
+        # 路由到Order-Service微服务
+        - id: r-OrderService
+          uri: lb://Order-Service
+          order: 1
+          predicates:
+            - Path=/OrderService/**
+          filters:
+            - StripPrefix=1
+        # 路由到Goods-Service微服务
+        - id: r-GoodsService
+          uri: lb://Goods-Service
+          order: 1
+          predicates:
+            - Path=/GoodsService/**
+          filters:
+            - StripPrefix=1
